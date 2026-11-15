@@ -10,17 +10,25 @@ async function seed() {
 
   // --- Coordinator account ---
   const coordPassword = process.env.COORDINATOR_PASSWORD || 'Coord!n@t0r1';
-  const existingCoord = db.prepare("SELECT id FROM accounts WHERE email = 'coordinator@tracker.local'").get();
+const existingCoord = db.prepare(
+  "SELECT id FROM accounts WHERE email = 'coordinator@tracker.local'"
+).get();
 
-  if (!existingCoord) {
-    const coordHash = await hashPassword(coordPassword);
-    db.prepare(
-      'INSERT INTO accounts (email, password_hash, role, must_change_password, password_version) VALUES (?, ?, ?, 0, 1)'
-    ).run('coordinator@tracker.local', coordHash, 'Coordinator');
-    console.log('  Created coordinator account');
-  } else {
-    console.log('  Coordinator account already exists, skipping');
-  }
+const coordHash = await hashPassword(coordPassword);
+
+if (!existingCoord) {
+  db.prepare(
+    'INSERT INTO accounts (email, password_hash, role, must_change_password, password_version) VALUES (?, ?, ?, 0, 1)'
+  ).run('coordinator@tracker.local', coordHash, 'Coordinator');
+
+  console.log('  Created coordinator account');
+} else {
+  db.prepare(
+    'UPDATE accounts SET password_hash = ?, role = ?, must_change_password = 0, password_version = 1 WHERE id = ?'
+  ).run(coordHash, 'Coordinator', existingCoord.id);
+
+  console.log('  Updated coordinator password');
+}
 
   // --- Candidate accounts and learners ---
   const candidates = [
