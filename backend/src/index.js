@@ -42,15 +42,16 @@ app.use((req, res, next) => {
 });
 
 // Session store (in-memory for simplicity since we can't use connect-sqlite3 with sql.js)
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret-change-me',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: 'lax',
+    sameSite: 'none',
     secure: true,
-    maxAge: 2 * 60 * 60 * 1000, // 2 hours
+    maxAge: 2 * 60 * 60 * 1000,
   },
 }));
 
