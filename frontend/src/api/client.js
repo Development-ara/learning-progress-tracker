@@ -1,3 +1,4 @@
+const API_BASE_URL = 'https://learning-progress-tracker-dy3b.onrender.com';
 async function request(method, url, body) {
   const options = {
     method,
@@ -11,7 +12,7 @@ async function request(method, url, body) {
     options.body = JSON.stringify(body);
   }
 
-  const response = await fetch(url, options);
+const response = await fetch(`${API_BASE_URL}${url}`, options);
 
   if (!response.ok) {
     let errorMessage = `Request failed with status ${response.status}`;
