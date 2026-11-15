@@ -14,6 +14,7 @@ const assignmentsRoutes = require('./routes/assignments');
 const cohortSummaryRoutes = require('./routes/cohortSummary');
 
 const app = express();
+app.set('trust proxy', 1);
 const PORT = process.env.PORT || 3001;
 
 // Security headers
@@ -48,7 +49,7 @@ app.use(session({
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
-    secure: false,
+    secure: true,
     maxAge: 2 * 60 * 60 * 1000, // 2 hours
   },
 }));
