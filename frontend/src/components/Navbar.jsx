@@ -8,8 +8,13 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+    } catch (err) {
+      console.warn('Logout request failed; clearing local session.', err);
+    } finally {
+      navigate('/', { replace: true });
+    }
   };
 
   if (!user || user.mustChangePassword) return null;

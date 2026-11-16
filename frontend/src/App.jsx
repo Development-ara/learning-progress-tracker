@@ -8,6 +8,7 @@ import ActivitiesPage from './pages/ActivitiesPage.jsx';
 import CandidatesPage from './pages/CandidatesPage.jsx';
 import LearnerDetailPage from './pages/LearnerDetailPage.jsx';
 import MyTrainingPage from './pages/MyTrainingPage.jsx';
+import LandingPage from './pages/LandingPage.jsx';
 
 function ProtectedRoute({ children, allowedRole }) {
   const { user, loading } = useAuth();
@@ -39,6 +40,8 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/" element={user ? (user.mustChangePassword ? <Navigate to="/change-password" replace /> : user.role === 'Coordinator' ? <Navigate to="/dashboard" replace /> : <Navigate to="/my-training" replace />) : <LandingPage />} />
+
       <Route
         path="/login"
         element={
@@ -115,21 +118,6 @@ function AppRoutes() {
           <ProtectedRoute allowedRole="Candidate">
             <MyTrainingPage />
           </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/"
-        element={
-          !user ? (
-            <Navigate to="/login" replace />
-          ) : user.mustChangePassword ? (
-            <Navigate to="/change-password" replace />
-          ) : user.role === 'Coordinator' ? (
-            <Navigate to="/dashboard" replace />
-          ) : (
-            <Navigate to="/my-training" replace />
-          )
         }
       />
 

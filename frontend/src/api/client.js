@@ -1,4 +1,4 @@
-const API_BASE_URL = 'https://learning-progress-tracker-dy3b.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 async function request(method, url, body) {
   const options = {
     method,

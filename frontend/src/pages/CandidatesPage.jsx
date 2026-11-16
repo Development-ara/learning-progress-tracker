@@ -64,6 +64,7 @@ export default function CandidatesPage() {
     const errors = {};
     if (!form.name.trim()) errors.name = 'Name is required';
     if (!form.email.trim()) errors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) errors.email = 'Enter a valid email address';
     if (!form.cohort.trim()) errors.cohort = 'Cohort is required';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -79,7 +80,7 @@ export default function CandidatesPage() {
     try {
       const result = await createLearner({
         name: form.name.trim(),
-        email: form.email.trim(),
+        email: form.email.trim().toLowerCase(),
         cohort: form.cohort.trim(),
       });
       setCredentials({
@@ -129,7 +130,7 @@ export default function CandidatesPage() {
       <Navbar />
       <main className="page-container">
         <div className="page-header">
-          <h1>Candidates</h1>
+          <div><span className="dashboard-kicker">PEOPLE & ACCESS</span><h1>Candidates</h1><p className="page-intro">Create learner accounts, organise cohorts and support each learner.</p></div>
           <button className="btn btn-primary" onClick={openAddModal}>
             + Add Candidate
           </button>
@@ -143,44 +144,24 @@ export default function CandidatesPage() {
         )}
 
         {!loading && !error && learners.length > 0 && (
-          <div className="table-container">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Cohort</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {learners.map((learner) => (
-                  <tr
-                    key={learner.id}
-                    className="clickable-row"
-                    onClick={() => navigate(`/learners/${learner.id}`)}
-                  >
-                    <td>{learner.displayName}</td>
-                    <td>{learner.email}</td>
-                    <td>{learner.cohort}</td>
-                    <td>
-                      <div className="table-actions">
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setResetConfirm(learner);
-                          }}
-                        >
-                          Reset Password
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <section className="candidate-grid" aria-label="Candidates">
+            {learners.map((learner) => (
+              <article className="candidate-card" key={learner.id}>
+                <button className="candidate-main" type="button" onClick={() => navigate(`/learners/${learner.id}`)}>
+                  <span className="candidate-avatar">{(learner.displayName || 'L').trim().charAt(0).toUpperCase()}</span>
+                  <span className="candidate-identity">
+                    <strong>{learner.displayName}</strong>
+                    <small>{learner.email}</small>
+                  </span>
+                  <span className="candidate-arrow" aria-hidden="true">↗</span>
+                </button>
+                <div className="candidate-card-bottom">
+                  <span className="cohort-chip">{learner.cohort || 'Unassigned cohort'}</span>
+                  <button className="btn btn-secondary btn-sm" onClick={() => setResetConfirm(learner)}>Reset password</button>
+                </div>
+              </article>
+            ))}
+          </section>
         )}
 
         {/* Add Candidate Modal */}
@@ -204,6 +185,8 @@ export default function CandidatesPage() {
                 className={`form-input ${formErrors.name ? 'error' : ''}`}
                 value={form.name}
                 onChange={handleChange('name')}
+                placeholder="e.g. Alex Morgan"
+                autoComplete="name"
                 disabled={saving}
               />
               {formErrors.name && <p className="form-error">{formErrors.name}</p>}
@@ -217,6 +200,8 @@ export default function CandidatesPage() {
                 className={`form-input ${formErrors.email ? 'error' : ''}`}
                 value={form.email}
                 onChange={handleChange('email')}
+                placeholder="alex@example.com"
+                autoComplete="email"
                 disabled={saving}
               />
               {formErrors.email && <p className="form-error">{formErrors.email}</p>}
@@ -230,6 +215,7 @@ export default function CandidatesPage() {
                 className={`form-input ${formErrors.cohort ? 'error' : ''}`}
                 value={form.cohort}
                 onChange={handleChange('cohort')}
+                placeholder="e.g. Frontend Development"
                 disabled={saving}
               />
               {formErrors.cohort && <p className="form-error">{formErrors.cohort}</p>}

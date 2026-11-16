@@ -31,8 +31,13 @@ export default function CoordinatorDashboard() {
     <>
       <Navbar />
       <main className="page-container">
-        <div className="page-header">
-          <h1>Dashboard{summary?.cohortName ? ` — ${summary.cohortName}` : ''}</h1>
+        <div className="dashboard-welcome">
+          <div>
+            <span className="dashboard-kicker">COORDINATOR WORKSPACE</span>
+            <h1>Your learning overview</h1>
+            <p>Keep activities organised and help every learner make progress.</p>
+          </div>
+          <span className="dashboard-welcome-mark">✦</span>
         </div>
 
         {loading && <LoadingSpinner message="Loading dashboard..." />}
@@ -40,30 +45,17 @@ export default function CoordinatorDashboard() {
 
         {!loading && !error && summary && (
           <>
-            <div className="card-grid">
-              <div className="summary-card">
-                <div className="summary-value">{summary.learnerCount ?? 0}</div>
-                <div className="summary-label">Learners</div>
-              </div>
-              <div className="summary-card">
-                <div className="summary-value">{summary.assignmentCount ?? 0}</div>
-                <div className="summary-label">Total Assignments</div>
-              </div>
-              <div className="summary-card">
-                <div className="summary-value">{summary.completedCount ?? 0}</div>
-                <div className="summary-label">Completed</div>
-              </div>
+            <div className="dashboard-stats">
+              <div className="dashboard-stat"><span className="stat-icon">♙</span><span className="stat-caption">LEARNERS</span><strong>{summary.learnerCount ?? 0}</strong><small>People in your programme</small></div>
+              <div className="dashboard-stat"><span className="stat-icon">▤</span><span className="stat-caption">ASSIGNMENTS</span><strong>{summary.assignmentCount ?? 0}</strong><small>Learning tasks assigned</small></div>
+              <div className="dashboard-stat"><span className="stat-icon">✓</span><span className="stat-caption">COMPLETED</span><strong>{summary.completedCount ?? 0}</strong><small>Milestones achieved</small></div>
             </div>
 
             <section>
-              <h2 className="section-title">Quick Links</h2>
-              <div className="quick-links">
-                <Link to="/activities" className="quick-link">
-                  📚 View Activities
-                </Link>
-                <Link to="/candidates" className="quick-link">
-                  👥 View Candidates
-                </Link>
+              <div className="dashboard-section-heading"><div><span className="dashboard-kicker">WORKSPACE TOOLS</span><h2 className="section-title">Manage your programme</h2></div></div>
+              <div className="dashboard-action-grid">
+                <Link to="/activities" className="dashboard-action-card"><span className="action-icon">▤</span><span><strong>Learning activities</strong><small>Create, update and organise learning content.</small></span><b>→</b></Link>
+                <Link to="/candidates" className="dashboard-action-card"><span className="action-icon">♙</span><span><strong>Candidates</strong><small>Manage learner accounts and track individuals.</small></span><b>→</b></Link>
               </div>
             </section>
           </>

@@ -43,14 +43,16 @@ app.use((req, res, next) => {
 
 // Session store (in-memory for simplicity since we can't use connect-sqlite3 with sql.js)
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || 'local-development-only-change-before-deploying',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    sameSite: 'none',
-    secure: true,
+    sameSite: isProduction ? 'none' : 'lax',
+    secure: isProduction,
     maxAge: 2 * 60 * 60 * 1000,
   },
 }));

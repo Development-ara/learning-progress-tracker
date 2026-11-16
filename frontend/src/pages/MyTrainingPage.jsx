@@ -27,7 +27,7 @@ export default function MyTrainingPage() {
       setAssignments(data);
     } catch (err) {
       if (err.status === 401) {
-        navigate('/login');
+        navigate('/', { replace: true });
         return;
       }
       setError(err.message || 'Failed to load assignments');
@@ -53,25 +53,37 @@ export default function MyTrainingPage() {
   };
 
   const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+    try {
+      await logout();
+    } catch (err) {
+      console.warn('Logout request failed; clearing local session.', err);
+    } finally {
+      navigate('/', { replace: true });
+    }
   };
 
   return (
     <main className="page-container">
-      <div className="my-training-header">
+      <div className="dashboard-welcome learner-welcome">
         <div>
-          <h1>My Training</h1>
+          <span className="dashboard-kicker">YOUR LEARNING SPACE</span>
+          <h1>My learning journey</h1>
+          <p className="page-intro">Pick up where you left off and keep building your skills.</p>
           <p className="my-training-user">
-            Signed in: <strong>{user?.displayName}</strong>
+            Welcome back, <strong>{user?.displayName}</strong>
             {user?.cohort && <> · Cohort: {user.cohort}</>}
           </p>
         </div>
-        <button className="btn btn-secondary" onClick={handleLogout}>
-          Logout
-        </button>
+        <button className="btn btn-secondary learner-logout" onClick={handleLogout}>Log out</button>
       </div>
 
+      {!loading && !error && assignments.length > 0 && (
+        <div className="learner-progress-strip">
+          <div><span>Assigned</span><strong>{assignments.length}</strong></div>
+          <div><span>Completed</span><strong>{assignments.filter((a) => a.status === 'Completed').length}</strong></div>
+          <div><span>In progress</span><strong>{assignments.filter((a) => a.status === 'In Progress').length}</strong></div>
+        </div>
+      )}
       {loading && <LoadingSpinner message="Loading your training..." />}
       {error && <ErrorMessage message={error} onRetry={fetchAssignments} />}
 

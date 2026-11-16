@@ -121,7 +121,7 @@ export default function ActivitiesPage() {
       <Navbar />
       <main className="page-container">
         <div className="page-header">
-          <h1>Learning Activities</h1>
+          <div><span className="dashboard-kicker">LEARNING LIBRARY</span><h1>Learning activities</h1><p className="page-intro">Build and maintain the activities that move your learners forward.</p></div>
           <button className="btn btn-primary" onClick={openAddModal}>
             + Add Activity
           </button>
