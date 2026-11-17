@@ -83,6 +83,23 @@ router.post('/', async (req, res) => {
   }
 });
 
+
+// DELETE /api/v1/learners/:id - remove learner, assignments and associated account
+router.delete('/:id', (req, res) => {
+  try {
+    const db = getDatabase();
+    const learner = db.prepare('SELECT id, account_id FROM learners WHERE id = ?').get(req.params.id);
+    if (!learner) return res.status(404).json({ error: 'Learner not found' });
+    db.prepare('DELETE FROM assignments WHERE learner_id = ?').run(learner.id);
+    db.prepare('DELETE FROM learners WHERE id = ?').run(learner.id);
+    if (learner.account_id) db.prepare('DELETE FROM accounts WHERE id = ?').run(learner.account_id);
+    return res.status(204).end();
+  } catch (err) {
+    console.error('Delete learner error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET /api/v1/learners/:id/assignments - get learner's assignments with activity details
 router.get('/:id/assignments', (req, res) => {
   try {

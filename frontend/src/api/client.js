@@ -35,6 +35,10 @@ const response = await fetch(`${API_BASE_URL}${url}`, options);
 }
 
 // Auth
+export function signup(data) {
+  return request('POST', '/api/v1/auth/signup', data);
+}
+
 export function login(email, password) {
   return request('POST', '/api/v1/auth/login', { email, password });
 }
@@ -76,6 +80,10 @@ export function createLearner(data) {
   return request('POST', '/api/v1/learners', data);
 }
 
+export function deleteLearner(learnerId) {
+  return request('DELETE', `/api/v1/learners/${learnerId}`);
+}
+
 export function resetPassword(learnerId) {
   return request('POST', `/api/v1/learners/${learnerId}/reset-password`);
 }
@@ -97,8 +105,12 @@ export function updateAssignmentStatus(assignmentId, status) {
 }
 
 // Cohort
-export function getCohortSummary() {
-  return request('GET', '/api/v1/cohort-summary');
+export function getCohortSummary(filters = {}) {
+  const params = new URLSearchParams();
+  if (filters.learnerId) params.set('learnerId', filters.learnerId);
+  if (filters.activityId) params.set('activityId', filters.activityId);
+  const query = params.toString();
+  return request('GET', `/api/v1/cohort-summary${query ? `?${query}` : ''}`);
 }
 
 // Candidate self-service

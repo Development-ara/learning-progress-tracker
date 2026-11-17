@@ -1153,3 +1153,43 @@ input, select, textarea {
   .landing-nav-actions { gap: 12px; }
   .landing-nav-signup { font-size: 12px; }
 }
+
+
+/* Reporting, progress and account management improvements */
+.report-section { margin: 30px 0 34px; }
+.report-filters { display: grid; grid-template-columns: minmax(180px,1fr) minmax(180px,1fr) auto; gap: 14px; align-items: end; margin: 18px 0; padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+.report-filters .form-group { margin: 0; }
+.report-filter-actions { display: flex; gap: 8px; padding-bottom: 0; }
+.dashboard-stat-progress { text-align: left; }
+.dashboard-stat-progress strong { display: block; margin: 9px 0; }
+.progress-track { width: 100%; height: 8px; overflow: hidden; border-radius: 20px; background: #e8edf2; }
+.progress-track span { display: block; height: 100%; border-radius: inherit; background: #23845a; transition: width .25s ease; }
+.report-progress { display: grid; min-width: 110px; gap: 6px; }
+.report-progress>span { font-size: 12px; font-weight: 750; }
+.candidate-actions { display: flex; flex-wrap: wrap; gap: 7px; }
+.navbar-password-link { color: var(--primary); font-size: 12px; font-weight: 700; text-decoration: none; }
+.navbar-password-link:hover { text-decoration: underline; }
+.training-card { gap: 18px; }
+.training-card-status { display: grid; justify-items: end; gap: 7px; }
+.status-text { font-size: 11px; font-weight: 800; }
+.status-text--completed { color: #16834c; }
+.status-text--in-progress { color: #a66a00; }
+.status-text--not-started { color: #64748b; }
+.training-card--completed { border-left: 4px solid #16a34a; }
+.training-card--in-progress { border-left: 4px solid #e5a323; }
+.training-card--not-started { border-left: 4px solid #94a3b8; }
+.learner-progress-strip { grid-template-columns: repeat(auto-fit,minmax(120px,1fr)); }
+@media (max-width: 760px) {
+  .report-filters { grid-template-columns: 1fr; }
+  .report-filter-actions { flex-wrap: wrap; }
+  .navbar-right { flex-wrap: wrap; justify-content: flex-end; }
+  .navbar-password-link { order: 3; }
+  .training-card-status { justify-items: stretch; }
+}
+
+.learner-header-actions { display: flex; gap: 9px; align-items: center; }
+.learner-detail-progress { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 12px; margin: 20px 0 28px; }
+.learner-detail-progress>div { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); background: #fff; }
+.learner-detail-progress span { color: var(--text-secondary); font-size: 12px; }
+.learner-detail-progress strong { color: var(--text); font-size: 25px; }
+@media (max-width: 680px) { .learner-header-actions { width: 100%; } .learner-header-actions .btn { flex: 1; } }

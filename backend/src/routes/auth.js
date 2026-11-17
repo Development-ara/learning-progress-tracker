@@ -14,6 +14,34 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// POST /api/v1/auth/signup - self-register a candidate account
+router.post('/signup', async (req, res) => {
+  try {
+    const { name, email, cohort, password } = req.body;
+    if (!name || !name.trim() || !email || !email.trim() || !cohort || !cohort.trim() || !password) {
+      return res.status(400).json({ error: 'Name, email, cohort and password are required' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      return res.status(400).json({ error: 'Enter a valid email address' });
+    }
+    if (password.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+    const db = getDatabase();
+    if (db.prepare('SELECT id FROM accounts WHERE email = ?').get(email.trim())) {
+      return res.status(409).json({ error: 'An account with this email already exists' });
+    }
+    const passwordHash = await hashPassword(password);
+    const accountResult = db.prepare(
+      'INSERT INTO accounts (email, password_hash, role, must_change_password, password_version) VALUES (?, ?, ?, 0, 1)'
+    ).run(email.trim(), passwordHash, 'Candidate');
+    db.prepare('INSERT INTO learners (display_name, cohort, account_id) VALUES (?, ?, ?)')
+      .run(name.trim(), cohort.trim(), accountResult.lastInsertRowid);
+    return res.status(201).json({ message: 'Candidate account created. You can now sign in.' });
+  } catch (err) {
+    console.error('Signup error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // POST /api/v1/auth/login
 router.post('/login', loginLimiter, async (req, res) => {
   try {
@@ -45,10 +73,12 @@ router.post('/login', loginLimiter, async (req, res) => {
 
     // Get display name for candidates
     let displayName = null;
+    let cohort = null;
     if (account.role === 'Candidate') {
-      const learner = db.prepare('SELECT display_name FROM learners WHERE account_id = ?').get(account.id);
+      const learner = db.prepare('SELECT display_name, cohort FROM learners WHERE account_id = ?').get(account.id);
       if (learner) {
         displayName = learner.display_name;
+        cohort = learner.cohort;
       }
     } else {
       displayName = 'Coordinator';
@@ -61,6 +91,7 @@ router.post('/login', loginLimiter, async (req, res) => {
     req.session.role = account.role;
     req.session.mustChangePassword = mustChangePassword;
     req.session.displayName = displayName;
+    req.session.cohort = cohort;
     req.session.passwordVersion = account.password_version;
 
     return res.status(200).json({
@@ -68,6 +99,7 @@ router.post('/login', loginLimiter, async (req, res) => {
       role: account.role,
       mustChangePassword,
       displayName,
+      cohort,
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -117,6 +149,7 @@ router.post('/change-password', async (req, res) => {
       role: req.session.role,
       mustChangePassword: false,
       displayName: req.session.displayName,
+      cohort: req.session.cohort || null,
       passwordVersion: newVersion,
     };
 
@@ -163,6 +196,7 @@ router.get('/me', (req, res) => {
     role: req.session.role,
     mustChangePassword: req.session.mustChangePassword,
     displayName: req.session.displayName,
+    cohort: req.session.cohort || null,
   });
 });
 

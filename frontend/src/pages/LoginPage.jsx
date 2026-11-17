@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import { signup } from '../api/client.js';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -9,6 +10,9 @@ export default function LoginPage() {
   const isSignupRequest = new URLSearchParams(location.search).get('mode') === 'signup';
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [cohort, setCohort] = useState('');
+  const [success, setSuccess] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -16,6 +20,16 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
+    if (isSignupRequest) {
+      if (!name.trim() || !cohort.trim()) { setError('Enter your full name and cohort.'); return; }
+      if (password.length < 8) { setError('Password must be at least 8 characters.'); return; }
+      setLoading(true);
+      try { await signup({ name: name.trim(), email: email.trim().toLowerCase(), cohort: cohort.trim(), password }); setSuccess('Your candidate account has been created. You can now sign in from the sign-in page.'); setPassword(''); setName(''); setCohort(''); }
+      catch (err) { setError(err.message || 'Unable to create account.'); }
+      finally { setLoading(false); }
+      return;
+    }
     const normalizedEmail = email.trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
       setError('Enter a valid email address.');
@@ -62,18 +76,20 @@ export default function LoginPage() {
             <span className="auth-icon">✦</span>
             <p className="auth-kicker">{isSignupRequest ? 'GET STARTED' : 'WELCOME BACK'}</p>
             <h2>{isSignupRequest ? 'Request your account' : 'Sign in to continue'}</h2>
-            <p>{isSignupRequest ? 'Learner accounts are created by your coordinator. Sign in if you already have your credentials, or contact your coordinator to request access.' : 'Enter your account details to open your learning workspace.'}</p>
+            <p>{isSignupRequest ? 'Create your learner account with your name, programme, email and password. Your progress will be linked to this account.' : 'Enter your account details to open your learning workspace.'}</p>
           </div>
 
           {isSignupRequest && (
             <div className="auth-info" role="status">
-              <strong>New to LearningTracker?</strong>
-              <span>Your coordinator creates learner accounts and shares your temporary sign-in details. You can sign in here once you receive them.</span>
+              <strong>Create your learner account</strong>
+              <span>Use your real name so your coordinator can identify your progress and training records.</span>
             </div>
           )}
 
           {error && <div className="auth-error" role="alert"><span>!</span>{error}</div>}
+          {success && <div className="auth-info" role="status">{success}</div>}
           <form className="auth-form" onSubmit={handleSubmit} noValidate>
+            {isSignupRequest && <><div className="auth-field"><label htmlFor="candidate-name">Full name</label><input id="candidate-name" value={name} onChange={e => setName(e.target.value)} placeholder="Your full name" autoComplete="name" disabled={loading} required /></div><div className="auth-field"><label htmlFor="candidate-cohort">Cohort / programme</label><input id="candidate-cohort" value={cohort} onChange={e => setCohort(e.target.value)} placeholder="e.g. Full Stack Development" disabled={loading} required /></div></>}
             <div className="auth-field">
               <label htmlFor="email">Email address</label>
               <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="username" placeholder="you@example.com" disabled={loading} required />
@@ -85,9 +101,9 @@ export default function LoginPage() {
                 <button type="button" className="password-toggle" onClick={() => setShowPassword((v) => !v)} aria-label={showPassword ? 'Hide password' : 'Show password'}>{showPassword ? 'Hide' : 'Show'}</button>
               </div>
             </div>
-            <button type="submit" className="auth-submit" disabled={loading}>{loading ? 'Signing you in…' : 'Sign in to your workspace'} <span>→</span></button>
+            <button type="submit" className="auth-submit" disabled={loading}>{loading ? (isSignupRequest ? 'Creating account…' : 'Signing you in…') : (isSignupRequest ? 'Create candidate account' : 'Sign in to your workspace')} <span>→</span></button>
           </form>
-          <div className="auth-bottom-note">Need an account? <Link to="/login?mode=signup">Request access</Link></div>
+          <div className="auth-bottom-note">{isSignupRequest ? <>Already registered? <Link to="/login">Sign in</Link></> : <>Need an account? <Link to="/login?mode=signup">Sign up as a candidate</Link></>}</div>
           <div className="auth-secure-note"><span>⌑</span> Your account and learning data stay protected.</div>
         </div>
       </section>

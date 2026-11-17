@@ -64,12 +64,6 @@ function AppRoutes() {
         element={
           !user ? (
             <Navigate to="/login" replace />
-          ) : !user.mustChangePassword ? (
-            user.role === 'Coordinator' ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <Navigate to="/my-training" replace />
-            )
           ) : (
             <ChangePasswordPage />
           )

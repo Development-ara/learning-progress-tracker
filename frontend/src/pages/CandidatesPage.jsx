@@ -6,7 +6,7 @@ import CredentialsDisplay from '../components/CredentialsDisplay.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
 import EmptyState from '../components/EmptyState.jsx';
-import { getLearners, createLearner, resetPassword } from '../api/client.js';
+import { getLearners, createLearner, resetPassword, deleteLearner } from '../api/client.js';
 
 const INITIAL_FORM = { name: '', email: '', cohort: '' };
 
@@ -118,6 +118,16 @@ export default function CandidatesPage() {
     }
   };
 
+  const handleDeleteLearner = async (learner) => {
+    const confirmed = window.confirm(`Delete ${learner.displayName} and all of their assigned activity records? This cannot be undone.`);
+    if (!confirmed) return;
+    try {
+      await deleteLearner(learner.id);
+      setLearners((prev) => prev.filter((item) => item.id !== learner.id));
+      showToast('Candidate and their training records deleted');
+    } catch (err) { showToast(err.message || 'Failed to delete candidate', 'error'); }
+  };
+
   const handleChange = (field) => (e) => {
     setForm((prev) => ({ ...prev, [field]: e.target.value }));
     if (formErrors[field]) {
@@ -157,7 +167,7 @@ export default function CandidatesPage() {
                 </button>
                 <div className="candidate-card-bottom">
                   <span className="cohort-chip">{learner.cohort || 'Unassigned cohort'}</span>
-                  <button className="btn btn-secondary btn-sm" onClick={() => setResetConfirm(learner)}>Reset password</button>
+                  <div className="candidate-actions"><button className="btn btn-secondary btn-sm" onClick={() => setResetConfirm(learner)}>Reset password</button><button className="btn btn-danger btn-sm" onClick={() => handleDeleteLearner(learner)}>Delete</button></div>
                 </div>
               </article>
             ))}
@@ -241,7 +251,7 @@ export default function CandidatesPage() {
         <Modal
           isOpen={!!credentials}
           onClose={() => setCredentials(null)}
-          title="Account Created"
+          title={credentials?.temporaryPassword ? "Candidate credentials" : "Account Created"}
         >
           {credentials && (
             <CredentialsDisplay

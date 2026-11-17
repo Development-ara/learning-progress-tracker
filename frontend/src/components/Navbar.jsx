@@ -69,6 +69,7 @@ export default function Navbar() {
         )}
 
         <div className="navbar-right">
+          <NavLink to="/change-password" className="navbar-password-link">Change password</NavLink>
           <span className="navbar-user">
             <strong>{user.displayName}</strong>{' '}
             <span>({user.role})</span>

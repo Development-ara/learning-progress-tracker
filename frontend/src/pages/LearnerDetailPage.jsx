@@ -122,6 +122,13 @@ export default function LearnerDetailPage() {
               </div>
             </div>
 
+            <div className="learner-detail-progress">
+              <div><span>Assigned activities</span><strong>{assignments.length}</strong></div>
+              <div><span>Completed</span><strong>{assignments.filter(a => a.status === 'Completed').length}</strong></div>
+              <div><span>Pending</span><strong>{assignments.filter(a => a.status !== 'Completed').length}</strong></div>
+              <div><span>Completion</span><strong>{assignments.length ? Math.round(assignments.filter(a => a.status === 'Completed').length / assignments.length * 100) : 0}%</strong></div>
+            </div>
+
             {/* Assign Activity Section */}
             <section style={{ marginBottom: '32px' }}>
               <h2 className="section-title">Assign Activity</h2>

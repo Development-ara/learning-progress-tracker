@@ -52,6 +52,7 @@ router.post('/', (req, res) => {
       title: activity.title,
       topic: activity.topic,
       plannedHours: activity.planned_hours,
+      planned_hours: activity.planned_hours,
     });
   } catch (err) {
     console.error('Create activity error:', err);

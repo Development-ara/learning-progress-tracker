@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import LoadingSpinner from '../components/LoadingSpinner.jsx';
 import ErrorMessage from '../components/ErrorMessage.jsx';
@@ -13,6 +13,8 @@ export default function MyTrainingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
+  const completedCount = assignments.filter((a) => a.status === 'Completed').length;
+  const progressPercent = assignments.length ? Math.round((completedCount / assignments.length) * 100) : 0;
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
@@ -70,11 +72,11 @@ export default function MyTrainingPage() {
           <h1>My learning journey</h1>
           <p className="page-intro">Pick up where you left off and keep building your skills.</p>
           <p className="my-training-user">
-            Welcome back, <strong>{user?.displayName}</strong>
+            Welcome back, <strong>{user?.displayName || 'Learner'}</strong>
             {user?.cohort && <> · Cohort: {user.cohort}</>}
           </p>
         </div>
-        <button className="btn btn-secondary learner-logout" onClick={handleLogout}>Log out</button>
+        <div className="learner-header-actions"><Link className="btn btn-secondary" to="/change-password">Change password</Link><button className="btn btn-secondary learner-logout" onClick={handleLogout}>Log out</button></div>
       </div>
 
       {!loading && !error && assignments.length > 0 && (
@@ -82,6 +84,7 @@ export default function MyTrainingPage() {
           <div><span>Assigned</span><strong>{assignments.length}</strong></div>
           <div><span>Completed</span><strong>{assignments.filter((a) => a.status === 'Completed').length}</strong></div>
           <div><span>In progress</span><strong>{assignments.filter((a) => a.status === 'In Progress').length}</strong></div>
+          <div><span>Overall progress</span><strong>{progressPercent}%</strong></div>
         </div>
       )}
       {loading && <LoadingSpinner message="Loading your training..." />}
@@ -97,7 +100,7 @@ export default function MyTrainingPage() {
       {!loading && !error && assignments.length > 0 && (
         <div>
           {assignments.map((assignment) => (
-            <div className="training-card" key={assignment.id}>
+            <div className={`training-card training-card--${assignment.status.toLowerCase().replaceAll(' ', '-')}`} key={assignment.id}>
               <div className="training-card-info">
                 <h3>{assignment.activityTitle || assignment.title}</h3>
                 <div className="training-card-meta">
@@ -105,7 +108,7 @@ export default function MyTrainingPage() {
                   <span>⏱ {assignment.plannedHours} hours</span>
                 </div>
               </div>
-              <div className="training-card-status">
+              <div className="training-card-status"><span className={`status-text status-text--${assignment.status.toLowerCase().replaceAll(' ', '-')}`}>{assignment.status}</span>
                 <label htmlFor={`status-${assignment.id}`} className="sr-only" style={{
                   position: 'absolute',
                   width: '1px',

@@ -56,7 +56,7 @@ export default function ChangePasswordPage() {
       <div className="change-password-card">
         <h1 className="login-title">Change Password</h1>
         <div className="change-password-info">
-          You must change your password before continuing
+          {user?.mustChangePassword ? 'You must change your temporary password before continuing.' : 'Update your account password securely.'}
         </div>
 
         {error && (
